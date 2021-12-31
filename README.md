@@ -1,5 +1,7 @@
 # Chinese character "recognition"
 
+PSA: Under `/scratch/gushansad/`, I have added all Lenet models, as they exceeded the Github maximum file size (the Alexnet models are small enough to go on Github, but I added them under the scratch directory as well). I also added the labels as pickles, since they take quite some time to run. 
+
 ## Part 1
 
 For the data preparation, I first compared the `info.json` and `train.jsonl` files. Realising that all the needed information was available in `train.jsonl`, I proceeded to only use that. The function `get_meta()` basically just retrieves all the needed information from `train.jsonl`, and discards everything else (including data for images not present in the `/scratch/lt2326-h21/a1/images` directory). 
@@ -14,26 +16,14 @@ After that, I loaded the images using a function, `get_imgs()` (also known as `g
 
 To load the data for the networks, I used `DataLoader` for each set. 
 
-I was interested in implementing CNN architechtures that I wasn't familiar with, so I chose Lenet first. In the model, I wanted to use `nn.Sequential`, since I hadn't used that before, and thought it'd be good practice. In order to implement the model, I used a few different tutorials, combining them into what is now the model. Due to memory limitations, I had to significantly reduce the feature/kernel sizes of each layer. I also added a third block of `nn.Convd2d()`, `nn.Tanh`, `nn.AvgPool2d` to reduce the size further. After implementing the `Lenet()` model, I wrote the `train()` and `test()` functions, again with the assitance of a few tutorials. 
+I was interested in implementing CNN architechtures that I wasn't familiar with, so I chose [LeNet](https://ieeexplore.ieee.org/document/726791) first. In the model, I wanted to use `nn.Sequential`, since I hadn't used that before, and thought it'd be good practice. In order to implement the model, I used a few different tutorials, combining them into what is now the `Lenet()` model. Due to memory limitations, I had to significantly reduce the feature/kernel sizes of each layer. I also added a third block of `nn.Convd2d()`, `nn.Tanh`, `nn.AvgPool2d` to reduce the size further. After implementing the `Lenet()` model, I wrote the `train()` and `test()` functions, again with the assitance of a few tutorials. Regarding loss function, I chose to not use MSE as is used in LeCun's original model, since I had read that it is not ideal for binary classification. Instead, I settled on BCE loss. As for optimization, I decided on using Adam, as it seemed to be a good fit with the BCE loss.
 
-I then chose another CNN architechture that I hadn't explored previously, AlexNet. For practice, I wanted to keep using `nn.Sequential`, which turned out to be a good idea as AlexNet has quite a few convolutional/pooling blocks. Again, I consulted a number of tutorials, combined and modified them to suit the `train()` and `test()` functions. As with the `Lenet()` model, I had to reduce the size of the features/kernels. For the `Alexnet()` model, the feature/kernel sizes were originally so large that I decided to divide them all by 16, which worked well. 
+I then chose another CNN architechture that I hadn't explored previously, [AlexNet](https://www.semanticscholar.org/paper/ImageNet-classification-with-deep-convolutional-Krizhevsky-Sutskever/abd1c342495432171beb7ca8fd9551ef13cbd0ff). For practice, I wanted to keep using `nn.Sequential`, which turned out to be a good idea as AlexNet has quite a few convolutional/pooling blocks. Again, I consulted a number of tutorials, combined and modified them to suit the `train()` and `test()` functions. As with the `Lenet()` model, I had to reduce the size of the features/kernels. For the `Alexnet()` model, the feature/kernel sizes were originally so large that I decided to divide them all by 16, which worked well. 
 
 ## Part 3
 
-For evaluation, I decided to use BCE and accuracy. The hyperparameter settings I used were 10 epochs, batch size of 4 and a learning rate of 0.01. Using all of the data, both models achieved an accuracy of 0.331 and a total loss of 0.109. I though this was suspicious, so I decided to run the models with a smaller amount of data. With half of the data, the Alexnet model achieved an accuracy of 0.313 and a total loss of 0.064, while the Lenet model achieved an accuracy of 0.285 and a total loss of 1.147. 
-
-As the dataset is on the smaller side, I did not expect to achieve any record-breaking results. 
+For evaluation, I decided to use BCE loss, as mentioned, and accuracy. The hyperparameter settings I used were 10 epochs, batch size of 4 and a learning rate of 0.01. Using all of the data, both models achieved an accuracy of 0.331 and a total loss of 0.109. I though this was suspicious, so I decided to run the models with a smaller amount of data. With half of the data, the Alexnet model achieved an accuracy of 0.313 and a total loss of 0.064, while the Lenet model achieved an accuracy of 0.285 and a total loss of 1.147. (I also used a dataset of just 100 images during the development, on this data, the Alexnet model achieved an accuray of 0.276 and a loss of 0.013, while the Lenet model achieved an accuracy of 0.331 and a loss of 0.109 (again).) As the dataset is on the smaller side, this was more or less in line with my expectations.
 
 By examining the images produced by `apply_model()`, it is apparent that the models only predict class. As he dataset is not balanced, this gives the models an incentive to predict only one class (in this case zeros, i.e. the pixel is not in a bounding box). (I did double check that the labels actually contains 1s, and not just 0s.) Perhaps by balancing the data and tweaking some of the hyperparameters, the results could be improved upon. 
 
-
-- alexnet:
--- smalldata: Accuracy: 0.27647, Loss: 0.01311
---halfdata:   Accuracy: 0.31646, Loss: 0.06441
--- alldata:   Accuracy: 0.33159, Loss: 0.10957
-
-- lenet:
--- smalldata: Accuracy: 0.33159, Loss: 0.10957
--- halfdata:  Accuracy: 0.28503, Loss: 1.14716
--- alldata:   Accuracy: 0.33159, Loss: 0.10957, best e: 4 
 
